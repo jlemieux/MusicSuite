@@ -1,0 +1,9 @@
+<RCC>
+  <qresource>
+    <file>icons/back.ico</file>
+    <file>icons/forward.ico</file>
+    <file>icons/home.ico</file>
+    <file>icons/refresh.ico</file>
+    <file>icons/search.ico</file>
+  </qresource>
+</RCC>
