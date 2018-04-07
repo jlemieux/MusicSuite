@@ -1,32 +1,39 @@
-from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtWebEngineWidgets import *
+
 import sys, os
+
 os.environ['QT_DEBUG_PLUGINS'] = "0"
 
 import browser
+import itunes
 
 
-class Browser(QtWidgets.QMainWindow, browser.Ui_MainWindow):
+class Suite(QMainWindow, browser.Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
         #QtWebKit.QWebSettings.globalSettings().setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
         self.webView.settings().setAttribute(
-          QtWebEngineWidgets.QWebEngineSettings.PluginsEnabled, True)
+          QWebEngineSettings.PluginsEnabled, True)
         self.webView.settings().setAttribute(
-          QtWebEngineWidgets.QWebEngineSettings.FullScreenSupportEnabled, True)
+          QWebEngineSettings.FullScreenSupportEnabled, True)
         self.webView.page().fullScreenRequested.connect(
           lambda request: request.accept())
         #self.player = QtMultimedia.QMediaPlayer(self)
-        #url = QtCore.QUrl.fromLocalFile("F:\\Users\\JimmyGtr11\\Music\\iTunes\\iTunes Media\\Music\\Smash Mouth\\Unknown Album\\All Star.mp3")
+        #url = QUrl.fromLocalFile("F:\\Users\\JimmyGtr11\\Music\\iTunes\\iTunes Media\\Music\\Smash Mouth\\Unknown Album\\All Star.mp3")
         #self.player.setMedia(QtMultimedia.QMediaContent(url))
         #self.player.setVolume(50)
         
-        self.tb_search.clicked.connect(self.search)
-        self.tb_back.clicked.connect(self.embed)
+        #self.tb_search.clicked.connect(self.search)
+        #self.tb_back.clicked.connect(self.embed)
+        self.pb_file.clicked.connect(self.get_dir)
 
     def search(self):
         text = self.address_bar.text()
-        url = QtCore.QUrl(text)
+        url = QUrl(text)
         self.webView.load(url)
     
     def embed(self):
@@ -35,14 +42,21 @@ class Browser(QtWidgets.QMainWindow, browser.Ui_MainWindow):
         src="https://www.youtube.com/embed/3_eQbg8tuns" \
         frameborder="0" allowfullscreen></iframe>'
 
-        self.webView.setHtml(html, QtCore.QUrl(''))
+        self.webView.setHtml(html, QUrl(''))
 
+    def get_dir(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.ShowDirsOnly
+        options |= QFileDialog.ReadOnly
+        self.dir = QFileDialog.getExistingDirectory(self,
+          'Select directory...', 'C:/', options)
+        print(self.dir)
 
 
 if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
 
-    ui = Browser()
+    ui = Suite()
     ui.show()
 
     sys.exit(app.exec_())

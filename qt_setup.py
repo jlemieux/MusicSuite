@@ -1,7 +1,7 @@
 import os, sys
 
 
-project = 'browser'
+project = 'gui'
 
 def ui_to_py():
     pyuic5 = 'pyuic5.exe'
