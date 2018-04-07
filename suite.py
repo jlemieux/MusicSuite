@@ -7,30 +7,28 @@ import sys, os
 
 os.environ['QT_DEBUG_PLUGINS'] = "0"
 
-import browser
-import itunes
+from gui import Ui_MainWindow
+
+from views.youtube import YouTube
+from views.pandora import Pandora
+from views.itunes import iTunes
 
 
-class Suite(QMainWindow, browser.Ui_MainWindow):
+class Suite(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        #QtWebKit.QWebSettings.globalSettings().setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
-        self.webView.settings().setAttribute(
-          QWebEngineSettings.PluginsEnabled, True)
-        self.webView.settings().setAttribute(
-          QWebEngineSettings.FullScreenSupportEnabled, True)
-        self.webView.page().fullScreenRequested.connect(
-          lambda request: request.accept())
+
+        self.yt = YouTube(self)
+        self.pd = Pandora(self)
+        self.it = iTunes(self)
+
         #self.player = QtMultimedia.QMediaPlayer(self)
         #url = QUrl.fromLocalFile("F:\\Users\\JimmyGtr11\\Music\\iTunes\\iTunes Media\\Music\\Smash Mouth\\Unknown Album\\All Star.mp3")
         #self.player.setMedia(QtMultimedia.QMediaContent(url))
         #self.player.setVolume(50)
-        
-        #self.tb_search.clicked.connect(self.search)
-        #self.tb_back.clicked.connect(self.embed)
-        self.pb_file.clicked.connect(self.get_dir)
 
+    '''
     def search(self):
         text = self.address_bar.text()
         url = QUrl(text)
@@ -43,20 +41,12 @@ class Suite(QMainWindow, browser.Ui_MainWindow):
         frameborder="0" allowfullscreen></iframe>'
 
         self.webView.setHtml(html, QUrl(''))
-
-    def get_dir(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.ShowDirsOnly
-        options |= QFileDialog.ReadOnly
-        self.dir = QFileDialog.getExistingDirectory(self,
-          'Select directory...', 'C:/', options)
-        print(self.dir)
-
+    '''
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    ui = Suite()
-    ui.show()
+    suite = Suite()
+    suite.show()
 
     sys.exit(app.exec_())

@@ -90,7 +90,7 @@
        <attribute name="toolTip">
         <string>iTunes</string>
        </attribute>
-       <widget class="QPushButton" name="pb_file">
+       <widget class="QPushButton" name="pb_dir">
         <property name="geometry">
          <rect>
           <x>380</x>
