@@ -4,7 +4,8 @@ from controller.player import Player
 
 from PyQt5.QtWidgets import QFileDialog
 
-import os
+from pathlib import Path
+#import os
 
 
 class iTunes(Tab):
@@ -32,15 +33,15 @@ class iTunes(Tab):
         options = QFileDialog.Options()
         options |= QFileDialog.ShowDirsOnly
         options |= QFileDialog.ReadOnly
-        fp = "F:/Users/JimmyGtr11/Music/iTunes" # change back to C:/
-        self.media_path = QFileDialog.getExistingDirectory(self.parent,
-          'Select directory...', fp, options)
-        if self.media_path is None:
+        #opening_path = os.path.abspath(os.sep)  # cross platform safe
+        opening_path = "F:\\Users\\JimmyGtr11\\Music\\iTunes"
+        selected_path = QFileDialog.getExistingDirectory(self.parent,
+          'Select directory...', opening_path, options)
+        if selected_path is None:
             return
-        print(self.media_path)
-        self.auto_add_path = os.path.join(self.media_path,
-          "Automatically Add to iTunes")
-        music_path = os.path.join(self.media_path, "Music")
-        if os.path.exists(music_path):
+        self.media_path = Path(selected_path)
+        self.auto_add_path = self.media_path / "Automatically Add to iTunes"
+        music_path = self.media_path / "Music"
+        if music_path.exists():
             self.library.populate_table(music_path)
 

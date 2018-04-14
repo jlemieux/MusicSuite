@@ -8,8 +8,5 @@ class Player(object):
         mixer.init()
 
     def play_song(self, song):
-        if song.endswith('.mp3') or song.endswith('.ogg'):
-            mixer.music.load(song)
-            mixer.music.play()
-        elif os.path.isfile(song):
-            print("Playback only supports .mp3 and .ogg audio files!")
+        mixer.music.load(song)
+        mixer.music.play()

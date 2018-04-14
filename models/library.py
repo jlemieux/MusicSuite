@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QTableWidgetItem
 
 from mutagen.mp3 import EasyMP3, HeaderNotFoundError
 
+from pathlib import Path
 import os
 
 
@@ -19,7 +20,11 @@ class Library(object):
 
     def get_song_length(self, mp3):
         audiofile = EasyMP3(mp3)
-        return str(audiofile.info.length)
+        seconds = int(round(audiofile.info.length))
+        minutes = seconds // 60
+        remainder = seconds - (minutes * 60)
+        formatted = "{0}:{1:0>2d}".format(minutes, remainder)
+        return formatted
 
     def populate_table(self, music_path):
         self.get_headers()
@@ -31,38 +36,40 @@ class Library(object):
         self.table.setItem(self.n_rows, col, cell)
         return cell
 
-    def add_row(self, path, parent):
+    def add_row(self, song_path):
+        '''
+        Path("/Music/Artist/Album/song.mp3").parts = 
+        ("Music", "Artist", "Album", "song.mp3")
+        '''
+
         self.table.insertRow(self.n_rows)
 
-        song_name = os.path.basename(path)
+        #song_name = os.path.basename(path)
+        song_name = song_path.parts[-1]
         song_cell = self.add_cell(song_name, self.headers["Name"])
-        song_cell.setToolTip(path)
+        song_cell.setToolTip(str(song_path))
 
-        artist_name = os.path.basename(os.path.dirname(parent))
+        #artist_name = os.path.basename(os.path.dirname(parent))
+        artist_name = song_path.parts[-3]
         artist_cell = self.add_cell(artist_name, self.headers["Artist"])
 
-        song_length = self.get_song_length(path)
+        song_length = self.get_song_length(str(song_path))
         time_cell = self.add_cell(song_length, self.headers["Time"])
 
-        album_name = os.path.basename(parent)
+        album_name = song_path.parts[-2]
         album_cell = self.add_cell(album_name, self.headers["Album"])
 
         self.n_rows += 1
 
     def _recurse(self, parent_path):
-        for name in os.listdir(parent_path):
+        for name in os.listdir(str(parent_path)):
             if name in self.ignore or name.startswith("._"):
                 continue
-            cur_path = os.path.join(parent_path, name)
-            if os.path.isdir(cur_path):
+            cur_path = parent_path / name
+            if cur_path.is_dir():
                 self._recurse(cur_path)
-            good_format = False
-            for format in self.formats:
-                if name.endswith(format):
-                    good_format = True
-                    break
-            if good_format:
-                self.add_row(cur_path, parent_path)
+            if cur_path.suffix in self.formats:
+                self.add_row(cur_path)
 
     '''
     def edit_metadata(self, mp3):
