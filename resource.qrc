@@ -1,9 +1,8 @@
 <RCC>
   <qresource>
-    <file>icons/back.ico</file>
-    <file>icons/forward.ico</file>
-    <file>icons/home.ico</file>
-    <file>icons/refresh.ico</file>
-    <file>icons/search.ico</file>
+    <file>icons/back.png</file>
+    <file>icons/forward.png</file>
+    <file>icons/pause.png</file>
+    <file>icons/play.png</file>
   </qresource>
 </RCC>

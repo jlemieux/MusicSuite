@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>875</width>
-    <height>526</height>
+    <width>868</width>
+    <height>537</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MusicSuite</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resource.qrc">
+   <iconset>
     <normaloff>:/icons/search.ico</normaloff>:/icons/search.ico</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -98,7 +98,7 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
-         <layout class="QHBoxLayout" name="hori_controls" stretch="0,3,1">
+         <layout class="QHBoxLayout" name="layout_controls" stretch="0,3,1">
           <property name="spacing">
            <number>15</number>
           </property>
@@ -109,7 +109,7 @@
            <number>0</number>
           </property>
           <item>
-           <layout class="QHBoxLayout" name="hori_left" stretch="0,0,0,0">
+           <layout class="QHBoxLayout" name="layout_buttons" stretch="0,0,0,0">
             <property name="spacing">
              <number>10</number>
             </property>
@@ -123,7 +123,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QToolButton" name="toolButton_5">
+             <widget class="QToolButton" name="tb_back">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -139,10 +139,46 @@
               <property name="text">
                <string>...</string>
               </property>
+              <property name="icon">
+               <iconset resource="resource.qrc">
+                <normaloff>:/icons/back.png</normaloff>:/icons/back.png</iconset>
+              </property>
              </widget>
             </item>
             <item>
-             <widget class="QToolButton" name="toolButton_4">
+             <widget class="QToolButton" name="tb_playPause">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>30</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="icon">
+               <iconset resource="resource.qrc">
+                <normaloff>:/icons/play.png</normaloff>:/icons/play.png</iconset>
+              </property>
+              <property name="checkable">
+               <bool>false</bool>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="tb_forward">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -158,29 +194,14 @@
               <property name="text">
                <string>...</string>
               </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QToolButton" name="toolButton_3">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>30</width>
-                <height>30</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>...</string>
+              <property name="icon">
+               <iconset resource="resource.qrc">
+                <normaloff>:/icons/forward.png</normaloff>:/icons/forward.png</iconset>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QSlider" name="horizontalSlider_2">
+             <widget class="QSlider" name="slider_volume">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -201,7 +222,7 @@
            </layout>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="vert_center">
+           <layout class="QVBoxLayout" name="layout_info">
             <property name="spacing">
              <number>1</number>
             </property>
@@ -209,12 +230,12 @@
              <number>0</number>
             </property>
             <item>
-             <layout class="QHBoxLayout" name="hori_info" stretch="0,0,0">
+             <layout class="QHBoxLayout" name="layout_song" stretch="0,0,0">
               <property name="spacing">
                <number>6</number>
               </property>
               <item>
-               <widget class="QToolButton" name="toolButton">
+               <widget class="QToolButton" name="tb_shuffle">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -233,7 +254,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="label">
+               <widget class="QLabel" name="song_name">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -255,7 +276,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QToolButton" name="toolButton_2">
+               <widget class="QToolButton" name="tb_repeat">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -276,12 +297,12 @@
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout">
+             <layout class="QHBoxLayout" name="layout_artist">
               <property name="topMargin">
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_4">
+               <widget class="QLabel" name="time_elapsed">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -311,7 +332,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="label_3">
+               <widget class="QLabel" name="artist">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -339,7 +360,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="label_2">
+               <widget class="QLabel" name="time_remaining">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -376,12 +397,12 @@
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="hori_seek">
+             <layout class="QHBoxLayout" name="layout_seek">
               <property name="topMargin">
                <number>0</number>
               </property>
               <item>
-               <widget class="QSlider" name="horizontalSlider">
+               <widget class="QSlider" name="slider_seek">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -410,7 +431,7 @@
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="hori_right">
+           <layout class="QHBoxLayout" name="layout_search">
             <property name="topMargin">
              <number>0</number>
             </property>
@@ -418,7 +439,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QLineEdit" name="lineEdit">
+             <widget class="QLineEdit" name="search">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -557,7 +578,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>875</width>
+     <width>868</width>
      <height>21</height>
     </rect>
    </property>
