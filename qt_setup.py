@@ -4,12 +4,12 @@ import os, sys
 project = 'gui'
 
 def ui_to_py():
-    pyuic5 = 'pyuic5.exe'
+    pyuic5 = "pyuic5.bat"
     return '{0} {1}.ui -o {1}.py'.format(pyuic5, project)
 
 def update_resources():
     resource = 'resource'
-    pyrcc5 = 'pyrcc5.exe'
+    pyrcc5 = "pyrcc5.bat"
     return '{0} {1}.qrc -o {1}_rc.py'.format(pyrcc5, resource)
 
 def port_webengine():
@@ -30,4 +30,4 @@ def port_webengine():
 if __name__ == '__main__':
     os.system(update_resources())
     os.system(ui_to_py())
-    port_webengine()
+    #port_webengine()

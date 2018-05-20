@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QTableWidgetItem
+from itunes_song import iTunesSong
 
 from mutagen.mp3 import EasyMP3, HeaderNotFoundError
 
@@ -11,6 +12,7 @@ class Library(object):
         self.table = table
         self.formats = ['.mp3', '.ogg']
         self.ignore = ['Automatically Add to iTunes']
+        self.songs = {}
 
     def get_headers(self):
         self.headers = {}
@@ -59,7 +61,19 @@ class Library(object):
         album_name = song_path.parts[-2]
         album_cell = self.add_cell(album_name, self.headers["Album"])
 
+        self.add_song(self.n_rows)
+
         self.n_rows += 1
+
+    def add_song(self, row):
+        song = iTunesSong(row)
+        for col in range(self.table.columnCount()):
+            header = self.table.horizontalHeaderItem(col).text()
+            cell = self.table.item(row, col)
+            if header == "Name":  # TODO: store path in separate column
+                setattr(song, "path", cell.toolTip())
+            setattr(song, header.lower(), cell.text())
+        self.songs[row] = song
 
     def _recurse(self, parent_path):
         for name in os.listdir(str(parent_path)):

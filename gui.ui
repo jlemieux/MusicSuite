@@ -37,7 +37,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <property name="documentMode">
        <bool>false</bool>
@@ -60,11 +60,18 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QWebView" name="yt_webView">
+         <widget class="QWebEngineView" name="yt_webView">
           <property name="url">
            <url>
-            <string>https://www.youtube.com/</string>
+            <string>about:blank</string>
            </url>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="url_test">
+          <property name="text">
+           <string>PushButton</string>
           </property>
          </widget>
         </item>
@@ -79,10 +86,10 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QWebView" name="pd_webView">
+         <widget class="QWebEngineView" name="pd_webView">
           <property name="url">
            <url>
-            <string>https://www.pandora.com/</string>
+            <string>about:blank</string>
            </url>
           </property>
          </widget>
@@ -590,9 +597,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QWebView</class>
+   <class>QWebEngineView</class>
    <extends>QWidget</extends>
-   <header>QtWebKitWidgets/QWebView</header>
+   <header location="global">QtWebEngineWidgets/QWebEngineView</header>
   </customwidget>
  </customwidgets>
  <resources>
