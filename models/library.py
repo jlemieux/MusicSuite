@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QTableWidgetItem
-from itunes_song import iTunesSong
+from models.itunes_song import iTunesSong
 
 from mutagen.mp3 import EasyMP3, HeaderNotFoundError
 

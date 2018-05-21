@@ -42,9 +42,27 @@ class WebView(object):
         self.interceptor = WebUrlRequestInterceptor(self.view)
         self.profile.setRequestInterceptor(self.interceptor)
 
+
+class SongUrlRecievedEvent(object):
+    def __init__(self, url):
+        self.url = url
+
+
 class WebUrlRequestInterceptor(QWebEngineUrlRequestInterceptor):
+    def __init__(self, webView):
+        super().__init__()
+        self.callbacks = []
+
+    def subscribe(self, callback):
+        self.callbacks.append(callback)
+
+    def post(self, url):
+        e = SongUrlRecievedEvent(url)
+        for fn in self.callbacks:
+            fn(e)
+
     def interceptRequest(self, info):
-        print(info.requestUrl().toString())
+        #print(info.requestUrl().toString())
         '''
         headers = {
             "Host": "audio-sv5-t1-2-v4v6.pandora.com",
@@ -94,8 +112,11 @@ class WebUrlRequestInterceptor(QWebEngineUrlRequestInterceptor):
         '''
         if info.resourceType() == 8:  # media type
             song_url = info.requestUrl().toString()
+            self.post(song_url)
+            '''
             fp = "C:\\Programming\\QTApps\\Suite\\misc\\song.mp3"
             input("About to download {0}".format(song_url))
             with open(fp, "wb") as song:
                 response = requests.get(song_url)
                 song.write(response.content)
+            '''
