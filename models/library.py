@@ -10,6 +10,7 @@ import os
 class Library(object):
     def __init__(self, table):
         self.table = table
+        self.music_path = None
         self.formats = ['.mp3', '.ogg']
         self.ignore = ['Automatically Add to iTunes']
         self.songs = {}
@@ -21,7 +22,8 @@ class Library(object):
             self.headers[header] = i
 
     def get_song_length(self, mp3):
-        audiofile = EasyMP3(mp3)
+        print("getting {0} length...".format(mp3.parts[-1]))
+        audiofile = EasyMP3(str(mp3))
         seconds = int(round(audiofile.info.length))
         minutes = seconds // 60
         remainder = seconds - (minutes * 60)
@@ -29,6 +31,7 @@ class Library(object):
         return formatted
 
     def populate_table(self, music_path):
+        self.music_path = music_path
         self.get_headers()
         self.n_rows = 0
         self._recurse(music_path)
@@ -47,33 +50,47 @@ class Library(object):
         self.table.insertRow(self.n_rows)
 
         #song_name = os.path.basename(path)
-        song_name = song_path.parts[-1]
-        song_cell = self.add_cell(song_name, self.headers["Name"])
+        song_title = song_path.parts[-1]
+        song_cell = self.add_cell(song_title, self.headers["Title"])
         song_cell.setToolTip(str(song_path))
 
         #artist_name = os.path.basename(os.path.dirname(parent))
         artist_name = song_path.parts[-3]
         artist_cell = self.add_cell(artist_name, self.headers["Artist"])
 
-        song_length = self.get_song_length(str(song_path))
+        song_length = self.get_song_length(song_path)
         time_cell = self.add_cell(song_length, self.headers["Time"])
 
         album_name = song_path.parts[-2]
         album_cell = self.add_cell(album_name, self.headers["Album"])
 
-        self.add_song(self.n_rows)
-
-        self.n_rows += 1
-
-    def add_song(self, row):
-        song = iTunesSong(row)
+    def add_library_song(self):
+        song = iTunesSong(self.n_rows)
         for col in range(self.table.columnCount()):
             header = self.table.horizontalHeaderItem(col).text()
-            cell = self.table.item(row, col)
-            if header == "Name":  # TODO: store path in separate column
+            cell = self.table.item(self.n_rows, col)
+            if header == "Title":  # TODO: store `path` in separate column
                 setattr(song, "path", cell.toolTip())
             setattr(song, header.lower(), cell.text())
-        self.songs[row] = song
+        self.songs[self.n_rows] = song
+
+    def song_is_unique(self, title, artist):
+        for song in self.songs.values():
+            if title == song.title:
+                if artist == song.artist:
+                    return False
+        return True
+
+    def add_downloaded_song(self, pandora_song):
+        self.add_row(pandora_song.path)
+        itunes_song = iTunesSong(self.n_rows)
+        for col in range(self.table.columnCount()):
+            header = self.table.horizontalHeaderItem(col).text()
+            attr = getattr(pandora_song, header.lower())
+            setattr(itunes_song, header.lower(), attr)
+        setattr(itunes_song, "path", pandora_song.path)
+        self.songs[self.n_rows] = itunes_song
+        self.n_rows += 1
 
     def _recurse(self, parent_path):
         for name in os.listdir(str(parent_path)):
@@ -84,6 +101,8 @@ class Library(object):
                 self._recurse(cur_path)
             if cur_path.suffix in self.formats:
                 self.add_row(cur_path)
+                self.add_library_song()
+                self.n_rows += 1
 
     '''
     def edit_metadata(self, mp3):

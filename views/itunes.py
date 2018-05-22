@@ -1,5 +1,4 @@
 from models.tab import Tab
-from models.library import Library
 from controller.player import Player
 
 from PyQt5.QtWidgets import QFileDialog
@@ -10,14 +9,14 @@ from pathlib import Path
 import random
 
 class iTunes(Tab):
-    def __init__(self, parent):
+    def __init__(self, parent, library):
         super().__init__(parent)
         self.parent = parent
-        self.media_path = None
-        self.auto_add_path = None
+        self.music_path = None
         self.current_song = None
 
-        self.library = Library(self.parent.library)
+        #self.library = Library(self.parent.library)
+        self.library = library
         self.player = Player()
 
         self.library.table.itemDoubleClicked.connect(self.play_song)
@@ -48,7 +47,7 @@ class iTunes(Tab):
 
     def get_clicked_song_path(self, cell):
         song = self.library.songs[cell.row()]
-        return song.name
+        return song.path
         '''
         name_cell_col = self.library.headers["Name"]
         name_cell = self.library.table.item(cell.row(), name_cell_col)
@@ -62,7 +61,7 @@ class iTunes(Tab):
         random_song = self.library.songs[random_row]
         while random_song is self.current_song:
             random_song = self.library.songs[random_row]
-        return random_song.name
+        return random_song.path
         '''
         numRows = self.library.table.rowCount()
         name_cell_col = self.library.headers["Name"]
@@ -85,9 +84,7 @@ class iTunes(Tab):
           'Select directory...', opening_path, options)
         if selected_path is None:
             return
-        self.media_path = Path(selected_path)
-        self.auto_add_path = self.media_path / "Automatically Add to iTunes"
-        music_path = self.media_path / "Music"
-        if music_path.exists():
-            self.library.populate_table(music_path)
+        self.music_path = Path(selected_path) / "Music"
+        if self.music_path.exists():
+            self.library.populate_table(self.music_path)
 

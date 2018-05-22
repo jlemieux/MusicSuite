@@ -177,6 +177,9 @@
               </item>
               <item>
                <widget class="QLineEdit" name="lbl_artist">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -664,7 +667,7 @@
           </attribute>
           <column>
            <property name="text">
-            <string>Name</string>
+            <string>Title</string>
            </property>
           </column>
           <column>

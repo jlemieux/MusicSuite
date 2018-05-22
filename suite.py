@@ -19,6 +19,7 @@ from gui import Ui_MainWindow
 from views.youtube import YouTube
 from views.pandora import Pandora
 from views.itunes import iTunes
+from models.library import Library
 
 
 class Suite(QMainWindow, Ui_MainWindow):
@@ -26,9 +27,10 @@ class Suite(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.setupUi(self)
 
+        self.library = Library(self.library)
         self.yt = YouTube(self)
-        self.pd = Pandora(self)
-        self.it = iTunes(self)
+        self.pd = Pandora(self, self.library)
+        self.it = iTunes(self, self.library)
 
         #self.player = QtMultimedia.QMediaPlayer(self)
         #url = QUrl.fromLocalFile("F:\\Users\\JimmyGtr11\\Music\\iTunes\\iTunes Media\\Music\\Smash Mouth\\Unknown Album\\All Star.mp3")
