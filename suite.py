@@ -6,7 +6,7 @@ from PyQt5.QtWebEngineWidgets import *
 import sys, os
 
 os.environ['QT_DEBUG_PLUGINS'] = "0"
-os.environ['QTWEBENGINE_REMOTE_DEBUGGING'] = "8080"
+#os.environ['QTWEBENGINE_REMOTE_DEBUGGING'] = "8080"
 #os.environ['GYP_DEFINES'] = "proprietary_codecs=1 ffmpeg_branding=Chrome"
 '''
 C:\WINDOWS\system32>set INCLUDE=%INCLUDE%;C:\Program Files (x86)\icu4c-61_1-Win64-MSVC2017\include
@@ -27,10 +27,10 @@ class Suite(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.setupUi(self)
 
-        self.library = Library(self.library)
+        self.mLibrary = Library(self.library)
         self.yt = YouTube(self)
-        self.pd = Pandora(self, self.library)
-        self.it = iTunes(self, self.library)
+        self.pd = Pandora(self, self.mLibrary)
+        self.it = iTunes(self, self.mLibrary)
 
         #self.player = QtMultimedia.QMediaPlayer(self)
         #url = QUrl.fromLocalFile("F:\\Users\\JimmyGtr11\\Music\\iTunes\\iTunes Media\\Music\\Smash Mouth\\Unknown Album\\All Star.mp3")

@@ -2,15 +2,19 @@ from PyQt5.QtWidgets import QTableWidgetItem
 from models.itunes_song import iTunesSong
 
 from mutagen.mp3 import EasyMP3, HeaderNotFoundError
+from mutagen import MutagenError
 
 from pathlib import Path
 import os
+import time
 
 
 class Library(object):
     def __init__(self, table):
         self.table = table
         self.music_path = None
+        self.auto_add_path_dir = None
+        self.temp_path_dir = None
         self.formats = ['.mp3', '.ogg']
         self.ignore = ['Automatically Add to iTunes']
         self.songs = {}
@@ -23,7 +27,17 @@ class Library(object):
 
     def get_song_length(self, mp3):
         print("getting {0} length...".format(mp3.parts[-1]))
-        audiofile = EasyMP3(str(mp3))
+        try:
+            audiofile = EasyMP3(str(mp3))
+        except MutagenError:
+            for _ in range(5):
+                time.sleep(1)
+                if mp3.is_file():
+                    audiofile = EasyMP3(str(mp3))
+                    break
+            else:
+                raise OSError(2, 'No such file or directory', str(mp3))
+
         seconds = int(round(audiofile.info.length))
         minutes = seconds // 60
         remainder = seconds - (minutes * 60)
@@ -32,6 +46,8 @@ class Library(object):
 
     def populate_table(self, music_path):
         self.music_path = music_path
+        self.auto_add_path_dir = music_path.parents[0] / Path("Automatically Add to iTunes")
+        self.temp_path_dir = music_path.parents[0] / Path("temp")
         self.get_headers()
         self.n_rows = 0
         self._recurse(music_path)
@@ -76,7 +92,10 @@ class Library(object):
 
     def song_is_unique(self, title, artist):
         for song in self.songs.values():
-            if title == song.title:
+            #print("Comparing '{0}' to '{1}'".format(title, song.title))
+            compare = ''.join(song.title.split()[1:-4])
+            if title == compare:
+                #print("Comparing '{0}' to '{1}'".format(artist, song.artist))
                 if artist == song.artist:
                     return False
         return True

@@ -86,5 +86,7 @@ class iTunes(Tab):
             return
         self.music_path = Path(selected_path) / "Music"
         if self.music_path.exists():
+            temp_dir = Path(selected_path) / "temp"
+            temp_dir.mkdir(exist_ok=True)
             self.library.populate_table(self.music_path)
 
