@@ -25,7 +25,7 @@ class Library(object):
             header = self.table.horizontalHeaderItem(i).text()
             self.headers[header] = i
 
-    def get_song_length(self, mp3):
+    def get_song_length_and_title(self, mp3):
         print("getting {0} length...".format(mp3.parts[-1]))
         try:
             audiofile = EasyMP3(str(mp3))
@@ -38,11 +38,16 @@ class Library(object):
             else:
                 raise OSError(2, 'No such file or directory', str(mp3))
 
+        try:
+            title = audiofile['title'][0]
+        except KeyError: # no 'TIT2' metadata ID3 tag set
+            title = Path(mp3.name).with_suffix('')
         seconds = int(round(audiofile.info.length))
         minutes = seconds // 60
         remainder = seconds - (minutes * 60)
         formatted = "{0}:{1:0>2d}".format(minutes, remainder)
-        return formatted
+        result = {'time': formatted, 'title': str(title)}
+        return result
 
     def populate_table(self, music_path):
         self.music_path = music_path
@@ -65,16 +70,14 @@ class Library(object):
 
         self.table.insertRow(self.n_rows)
 
-        #song_name = os.path.basename(path)
-        song_title = song_path.parts[-1]
-        song_cell = self.add_cell(song_title, self.headers["Title"])
-        song_cell.setToolTip(str(song_path))
-
-        #artist_name = os.path.basename(os.path.dirname(parent))
         artist_name = song_path.parts[-3]
         artist_cell = self.add_cell(artist_name, self.headers["Artist"])
 
-        song_length = self.get_song_length(song_path)
+        length_and_title = self.get_song_length_and_title(song_path)
+        song_title = length_and_title['title']
+        song_cell = self.add_cell(song_title, self.headers["Title"])
+        song_cell.setToolTip(str(song_path))
+        song_length = length_and_title['time']
         time_cell = self.add_cell(song_length, self.headers["Time"])
 
         album_name = song_path.parts[-2]
@@ -92,10 +95,9 @@ class Library(object):
 
     def song_is_unique(self, title, artist):
         for song in self.songs.values():
-            #print("Comparing '{0}' to '{1}'".format(title, song.title))
-            compare = ''.join(song.title.split()[1:-4])
-            if title == compare:
-                #print("Comparing '{0}' to '{1}'".format(artist, song.artist))
+            print("Comparing '{0}' to '{1}'".format(title, song.title))
+            if title == song.title:
+                print("Comparing '{0}' to '{1}'".format(artist, song.artist))
                 if artist == song.artist:
                     return False
         return True

@@ -2,7 +2,7 @@ from models.tab import Tab
 from models.pandora_song import PandoraSong
 from models.webview import WebView
 from models.album_api import AlbumAPI
-from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import QUrl, QThread, pyqtSignal
 from PyQt5.QtWebEngineCore import QWebEngineHttpRequest as qreq
 from PyQt5.QtWidgets import QMessageBox
 
@@ -17,45 +17,73 @@ import os
 import time
 import subprocess
 import shlex
+import re
 try:
     from subprocess import DEVNULL
 except ImportError:
     DEVNULL = open(os.devnull, 'wb')
 from threading import Thread
 
+MAX_LENGTH = 40
 
 class Pandora(Tab):
     def __init__(self, parent, library):
         super().__init__(parent)
+        self.parent = parent
         self.library = library
         self.albumAPI = AlbumAPI()
         self.webView = WebView(parent.pd_webView)
         self.webView.interceptor.subscribe(self.wait_for_DOM)
         self.current_song = None
         self.current_album = None
+        self.last_event = None
 
+        self.webView.view.loadFinished.connect(self._load_finished)
         self.parent.html_test.clicked.connect(self.send_req)
         self.parent.pb_download.clicked.connect(self.dl_btn_clicked)
         self.parent.pb_findAlbum.clicked.connect(self.auto_set_album_text)
+
+    def threaded(fn):
+        def wrapper(*args, **kwargs):
+            thread = Thread(target=fn, args=args, kwargs=kwargs)
+            thread.start()
+            return thread
+        return wrapper
+
     def wait_for_DOM(self, event):
         '''Delay toHtml call to allow DOM to load'''
-        url = event.url
-        thr = Thread(target=self.get_html, args=(url,))
-        thr.start()
+        print("setting last event now")
+        self.last_event = event
+        self.webView.view.loadFinished.emit(True)
+        #self.webView.page.toHtml(self._get_html)
 
-    def get_html(self, url):
-        time.sleep(5)
-        self.webView.page.toHtml(lambda html: self.create_song(html, url))
+    def _load_finished(self, result):
+        print("_load_finished: checking last event none")
+        self.webView.page.toHtml(self._get_html)
 
-    def create_song(self, html, url):
+    def _get_html(self, html):
+        print("in _get_html")
         soup = BeautifulSoup(html, "html.parser")
-        info = soup.find("div", {"class": "nowPlayingTopInfo__current"})
-        title = soup.find("div", {"class": "Marquee__wrapper__content"}).contents[0]
-        artist = soup.find("a", {"class": "nowPlayingTopInfo__current__artistName nowPlayingTopInfo__current__link"}).contents[0]
-        album = soup.find("a", {"class": "nowPlayingTopInfo__current__albumName nowPlayingTopInfo__current__link"}).contents[0]
-        r_time = soup.find("span", {"data-qa": "remaining_time"}).contents[0]
+        try:
+            title = soup.find("div", {"class": "Marquee__wrapper__content"}).contents[0]
+            artist = soup.find("a", {"class": "nowPlayingTopInfo__current__artistName nowPlayingTopInfo__current__link"}).contents[0]
+            album = soup.find("a", {"class": "nowPlayingTopInfo__current__albumName nowPlayingTopInfo__current__link"}).contents[0]
+            r_time = soup.find("span", {"data-qa": "remaining_time"}).contents[0]
+        except AttributeError:
+            print("excepting attrerr")
+            self.wait_for_nowPlaying_page()
+            return
+        self.create_song(title, artist, album, r_time)
+
+    @threaded
+    def wait_for_nowPlaying_page(self):
+        time.sleep(1)
+        print("emitting sig")
+        self.webView.view.loadFinished.emit(True)
+
+    def create_song(self, title, artist, album, r_time):
         basepath = Path(artist) / Path(album) / Path(title)
-        self.current_song = PandoraSong(title, artist, album, r_time, basepath, url)
+        self.current_song = PandoraSong(title, artist, album, r_time, basepath, self.last_event.url)
         self.preset_labels()
         self.enable_dl_panel()
 
@@ -91,14 +119,106 @@ class Pandora(Tab):
     '''
 
     def duplicate_song_alert(self):
-        msg = QMessageBox()
-        msg.setText("Song already in library!")
+        text = "Song already in library!"
+        msg = QMessageBox(QMessageBox.Information, "Duplicate song error", text, QMessageBox.Ok)
         msg.exec_()
 
+    def too_long_alert(self, info):
+        text = "'{0}' is '{1}' characters - 40 character max!".format(info, len(info))
+        msg = QMessageBox(QMessageBox.Information, "Too long error", text, QMessageBox.Ok)
+        msg.exec_()
+
+    def too_short_alert(self, info):
+        text = "Cannot leave {0} empty!".format(info)
+        msg = QMessageBox(QMessageBox.Information, "Too short error", text, QMessageBox.Ok)
+        msg.exec_()
+
+    def forbidden_character(self, info):
+        text = ("{0} contains forbidden characters!\nValid characters " +
+                "are:\n\t- Any letter or number\n\t- Underscores, periods, " +
+                "dashes\n\t- Spaces").format(info)
+        msg = QMessageBox(QMessageBox.Information, "Forbidden character error", text, QMessageBox.Ok)
+        msg.exec_()
+
+    def safe_filenames(self, title, artist, album):
+        title_total = "01 " + title + ".mp3"
+        title_len = len(title_total)
+        artist_len = len(artist)
+        album_len  = len(album)
+        print("about to do max lens")
+        if title_len > MAX_LENGTH:
+        
+            self.too_long_alert('Title')
+            
+            return False
+        if artist_len > MAX_LENGTH:
+            self.too_long_alert('Artist')
+            return False
+        if album_len> MAX_LENGTH:
+            self.too_long_alert('Album')
+            return False
+            
+        print("about to do zeroes")
+        
+        if title_len <= 0:
+            self.too_short_alert('Title')
+            return False
+        if artist_len <= 0:
+            self.too_short_alert('Artist')
+            return False
+        if album_len <= 0:
+            self.too_short_alert('Album')
+            return False
+            
+        print("about to do patterns")
+        
+        pattern = r"^([a-zA-Z0-9_\.'\-\&\(\)]|[^\S\n\t])+$"
+        print("title pattern")
+        if not re.match(pattern, title):
+            print("not match")
+            self.forbidden_character('Title')
+            return False
+        print("artist pattern")
+        if not re.match(pattern, artist):
+            print("not match")
+            self.forbidden_character('Artist')
+            return False
+        print("album pattern")
+        if not re.match(pattern, album):
+            print("not match")
+            self.forbidden_character('Album')
+            return False
+        
+        print("returning True")
+        
+        return True
+
     def dl_btn_clicked(self):
+        print("clicked")
         self.disable_dl_panel()
+        title = self.parent.lbl_title.text()
+        artist = self.parent.lbl_artist.text()
+        album = self.parent.lbl_album.text()
+
+        print("about to do safe_filenames(title, artist, album)")
+        if not self.safe_filenames(title, artist, album):
+            self.enable_dl_panel()
+            return
+
+        print("entering song_is_unique(title,artist)")
+        if not self.library.song_is_unique(title, artist):
+            print("inside if not condition, about to alert")
+            self.duplicate_song_alert()
+            print("done alert, enabling panel")
+            self.enable_dl_panel()
+            return
+
         thr = Thread(target=self.download_song)
+        #thr = DownloadThread()
+        #thr.run(self, self.download_song)
+        print("starting thread")
         thr.start()
+        print("after thread start")
 
     def auto_set_album_text(self):
         self.disable_dl_panel()
@@ -106,22 +226,32 @@ class Pandora(Tab):
         artist = self.parent.lbl_artist.text()
         album = self.albumAPI.get_album_info(title, artist) #TODO: x2 api calls
         if album is None:
-            msg = QMessageBox()
-            msg.setText("Could not find album information!")
+            text = "Could not find album information!"
+            msg = QMessageBox(QMessageBox.Information, "Missing album error", text, QMessageBox.Ok)
             msg.exec_()
         else:
             self.parent.lbl_album.setText(album.title)
         self.enable_dl_panel()
 
     def download_song(self):
+        print("entering download_song(self)")
         title = self.parent.lbl_title.text()
         artist = self.parent.lbl_artist.text()
         album = self.parent.lbl_album.text()
 
+        #print("about to do safe_filenames(title, artist, album)")
+        #if not self.safe_filenames(title, artist, album):
+        #    print("returning....")
+        #    return
+        '''
+        print("entering song_is_unique(title,artist)")
         if not self.library.song_is_unique(title, artist):
+            print("inside if not condition, about to alert")
             self.duplicate_song_alert()
+            print("done alert, enabling panel")
             self.enable_dl_panel()
             return
+        '''
 
         self.current_song.title = title
         self.current_song.artist = artist
@@ -203,3 +333,11 @@ class Pandora(Tab):
         r.setUrl(QUrl(temp))
         r.setMethod(qreq.Get)
         self.webView.view.load(r)
+
+
+class DownloadThread(QThread):
+    def __init__(self):
+        super().__init__(self)
+
+    def run(self, cls, fn):
+        cls.fn()

@@ -26,13 +26,19 @@ class AlbumAPI(object):
 
     def get_album_info(self, title, artist):
         info_query = self.build_info_query(title, artist)
-        info_response = self.get_response(info_query, 'info')
-        ns = "http://musicbrainz.org/ns/mmd-2.0#"
-        ElementTree.register_namespace('', ns)
-        xml_root = ElementTree.fromstring(info_response.content)
-        album = self.create_album(xml_root)
-        if album is not None:
-            self.set_album_art_url(album)
+        info_query_joined = self.build_info_query(title.replace(' ', ''), artist)
+        queries = [info_query, info_query_joined]
+        for query in queries:
+            info_response = self.get_response(query, 'info')
+            ns = "http://musicbrainz.org/ns/mmd-2.0#"
+            ElementTree.register_namespace('', ns)
+            xml_root = ElementTree.fromstring(info_response.content)
+            album = self.create_album(xml_root)
+            if album is not None:
+                break
+        else:
+            return None
+        self.set_album_art_url(album)
         return album
 
     def set_album_art_url(self, album):
