@@ -1,9 +1,6 @@
 from PyQt5.QtWebEngineWidgets import QWebEngineSettings, QWebEnginePage, QWebEngineProfile
 from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
-from PyQt5.QtCore import QByteArray
-from PyQt5.QtCore import QUrl
-from PyQt5.QtWebEngineCore import QWebEngineHttpRequest as qreq
-import requests
+from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
 
 class WebView(object):
@@ -40,26 +37,13 @@ class WebView(object):
         self.interceptor = WebUrlRequestInterceptor(self.view)
         self.profile.setRequestInterceptor(self.interceptor)
 
-
-class SongUrlRecievedEvent(object):
-    def __init__(self, url):
-        self.url = url
-
-
 class WebUrlRequestInterceptor(QWebEngineUrlRequestInterceptor):
+    url_received = pyqtSignal(str)
+
     def __init__(self, webView):
         super().__init__()
-        self.callbacks = []
-
-    def subscribe(self, callback):
-        self.callbacks.append(callback)
-
-    def post(self, url):
-        event = SongUrlRecievedEvent(url)
-        for fn in self.callbacks:
-            fn(event)
 
     def interceptRequest(self, info):
         if info.resourceType() == 8:  # media type
-            song_url = info.requestUrl().toString()
-            self.post(song_url)
+            download_url = info.requestUrl().toString()
+            self.url_received.emit(download_url)

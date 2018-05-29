@@ -37,7 +37,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <property name="documentMode">
        <bool>false</bool>
@@ -95,7 +95,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="html_test">
+         <widget class="QPushButton" name="pb_loadPandora">
           <property name="text">
            <string>PushButton</string>
           </property>
@@ -409,7 +409,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="song_name">
+               <widget class="QLabel" name="lbl_currentTitle">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -457,7 +457,7 @@
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="time_elapsed">
+               <widget class="QLabel" name="lbl_timeElapsed">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -487,7 +487,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="artist">
+               <widget class="QLabel" name="lbl_currentArtist">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -515,7 +515,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="time_remaining">
+               <widget class="QLabel" name="lbl_timeRemaining">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -594,7 +594,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QLineEdit" name="search">
+             <widget class="QLineEdit" name="lineEdit_search">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -696,6 +696,16 @@
           <column>
            <property name="text">
             <string>Album</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Year</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Track</string>
            </property>
           </column>
          </widget>

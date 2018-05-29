@@ -39,7 +39,7 @@ class Pandora(Tab):
         self.last_event = None
 
         self.webView.view.loadFinished.connect(self._load_finished)
-        self.parent.html_test.clicked.connect(self.send_req)
+        self.parent.pb_loadPandora.clicked.connect(self.load_pandora)
         self.parent.pb_download.clicked.connect(self.dl_btn_clicked)
         self.parent.pb_findAlbum.clicked.connect(self.auto_set_album_text)
 
@@ -311,7 +311,7 @@ class Pandora(Tab):
             self.update_song_name(self.current_album.nth_track)
             year = self.current_album.get_date_year()
             audio['TRCK'] = TRCK(encoding=3, text=track)
-            audio['TORY'] = TORY(encoding=3, text=year)
+            audio['TYER'] = TYER(encoding=3, text=year)
             audio['APIC'] = APIC(
                               encoding=3,
                               mime='image/jpeg',
@@ -327,7 +327,7 @@ class Pandora(Tab):
     def confirm_download(self):
         self.parent.pb_download.setText("Downloaded!")
 
-    def send_req(self):
+    def load_pandora(self):
         temp = "https://www.pandora.com"
         r = qreq()
         r.setUrl(QUrl(temp))
