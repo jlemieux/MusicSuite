@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from functools import partial
 from urllib.request import urlopen
 
 from app.workers import MBAlbumAPI
@@ -61,12 +62,22 @@ class Pandora(Tab):
     def _threaded_call(self, worker, fn, *args, signals=None, slots=None):
         thread = QThread()
         thread.setObjectName('thread_' + worker.__class__.__name__)
+
+        # store because garbage collection
         self.threads[worker] = thread
+
+        # give worker thread so it can be quit()
         worker.thread = thread
+
         # objects stay on threads after thread.quit()
-        # need to move back to main thread to recycle the same Worker
+        # need to move back to main thread to recycle the same Worker.
+        # Error is thrown about Worker having thread (0x0) if you don't do this
         worker.moveToThread(QThread.currentThread())
+
+        # move to newly created thread
         worker.moveToThread(thread)
+
+        # Can now apply cross-thread signals/slots
 
         #worker.signals.connect(self.slots)
         if signals:
@@ -86,13 +97,12 @@ class Pandora(Tab):
                     pass
                 signal.connect(slot)
 
-        thread.started.connect(lambda: fn(*args)) # fn might need to be a predefined slot...
+        thread.started.connect(partial(fn, *args)) # fn needs to be slot
         thread.start()
 
     @pyqtSlot(str)
     def _receieve_url(self, download_url):
         signals = {self.pdsf.song_created: self._receieve_song}
-        #slots = {self.pdsf.create_song, self.some_signal}
         self._threaded_call(self.pdsf, self.pdsf.create_song, download_url,
                             signals=signals)
 

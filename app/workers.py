@@ -30,7 +30,7 @@ class MBAlbumAPI(Worker):
                 self.album_created.emit(True)
                 break
         else:
-            self.album_create.emit(False)
+            self.album_created.emit(False)
 
         self.thread.quit()
 
@@ -132,7 +132,6 @@ class MBAlbumAPI(Worker):
         queries.append(q2)
 
         return queries
-
 
     def _namespace_find(self, root, tag):
         ns0 = "{http://musicbrainz.org/ns/mmd-2.0#}"

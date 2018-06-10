@@ -2,6 +2,10 @@ import os
 import time
 import shlex
 import subprocess
+try:
+    from subprocess import DEVNULL
+except ImportError:
+    DEVNULL = open(os.devnull, 'wb')
 
 from app.models import Worker
 from app.pandora.models import PandoraSong
@@ -77,7 +81,7 @@ class AudioConverter(Worker):
         output = song.temp_dl_path.with_suffix(".mp3")
         cmd = ('ffmpeg -i "{0}" -y -acodec libmp3lame -ab 192k "{1}"'
                .format(song.temp_dl_path, output))
-        subprocess.call(shlex.split(cmd))
+        subprocess.call(shlex.split(cmd), stdout=DEVNULL, stderr=subprocess.STDOUT)
         os.remove(song.temp_dl_path)
         song.temp_dl_path = output
         self.song_converted.emit()
